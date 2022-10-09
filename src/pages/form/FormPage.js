@@ -27,6 +27,8 @@ import {
 } from '@mui/material';
 
 // third party
+import SunEditor from 'suneditor-react';
+import 'suneditor/dist/css/suneditor.min.css'; // Import Sun Editor's CSS File
 import * as Yup from 'yup';
 import { useForm, Controller, useController } from 'react-hook-form';
 
@@ -271,6 +273,9 @@ const FormPage = () => {
                         label="Antoine Llorca"
                     />
                 </FormGroup>
+                <FormControl fullWidth>
+                    <SunEditor />
+                </FormControl>
 
                 <Button variant="contained">Contained</Button>
             </FormControl>
