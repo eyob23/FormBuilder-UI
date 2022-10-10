@@ -1,286 +1,288 @@
-import { useState } from 'react';
-// material-ui
-import {
-    Box,
-    Button,
-    Divider,
-    FormControl,
-    FormHelperText,
-    Grid,
-    Link,
-    IconButton,
-    InputAdornment,
-    InputLabel,
-    OutlinedInput,
-    Stack,
-    Typography,
-    TextField,
-    Select,
-    MenuItem,
-    FormControlLabel,
-    RadioGroup,
-    FormLabel,
-    Radio,
-    Autocomplete,
-    Checkbox,
-    FormGroup
-} from '@mui/material';
-
+import { useForm, Controller, useFieldArray, useController } from 'react-hook-form';
 // third party
 import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css'; // Import Sun Editor's CSS File
-import * as Yup from 'yup';
-import { useForm, Controller, useController } from 'react-hook-form';
-
-// project import
+import {
+    Autocomplete,
+    Box,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    Radio,
+    RadioGroup,
+    TextField,
+    Slider,
+    Select,
+    MenuItem
+} from '@mui/material';
 import MainCard from 'components/MainCard';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-// import { DateTimePicker } from '@material-ui/pickers';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { ErrorMessage } from '@hookform/error-message';
 
-// ==============================|| Form PAGE ||============================== //
-// Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
-const top100Films = [
-    { label: 'The Shawshank Redemption', year: 1994 },
-    { label: 'The Godfather', year: 1972 },
-    { label: 'The Godfather: Part II', year: 1974 },
-    { label: 'The Dark Knight', year: 2008 },
-    { label: '12 Angry Men', year: 1957 },
-    { label: "Schindler's List", year: 1993 },
-    { label: 'Pulp Fiction', year: 1994 },
-    {
-        label: 'The Lord of the Rings: The Return of the King',
-        year: 2003
-    },
-    { label: 'The Good, the Bad and the Ugly', year: 1966 },
-    { label: 'Fight Club', year: 1999 },
-    {
-        label: 'The Lord of the Rings: The Fellowship of the Ring',
-        year: 2001
-    },
-    {
-        label: 'Star Wars: Episode V - The Empire Strikes Back',
-        year: 1980
-    },
-    { label: 'Forrest Gump', year: 1994 },
-    { label: 'Inception', year: 2010 },
-    {
-        label: 'The Lord of the Rings: The Two Towers',
-        year: 2002
-    },
-    { label: "One Flew Over the Cuckoo's Nest", year: 1975 },
-    { label: 'Goodfellas', year: 1990 },
-    { label: 'The Matrix', year: 1999 },
-    { label: 'Seven Samurai', year: 1954 },
-    {
-        label: 'Star Wars: Episode IV - A New Hope',
-        year: 1977
-    },
-    { label: 'City of God', year: 2002 },
-    { label: 'Se7en', year: 1995 },
-    { label: 'The Silence of the Lambs', year: 1991 },
-    { label: "It's a Wonderful Life", year: 1946 },
-    { label: 'Life Is Beautiful', year: 1997 },
-    { label: 'The Usual Suspects', year: 1995 },
-    { label: 'Léon: The Professional', year: 1994 },
-    { label: 'Spirited Away', year: 2001 },
-    { label: 'Saving Private Ryan', year: 1998 },
-    { label: 'Once Upon a Time in the West', year: 1968 },
-    { label: 'American History X', year: 1998 },
-    { label: 'Interstellar', year: 2014 },
-    { label: 'Casablanca', year: 1942 },
-    { label: 'City Lights', year: 1931 },
-    { label: 'Psycho', year: 1960 },
-    { label: 'The Green Mile', year: 1999 },
-    { label: 'The Intouchables', year: 2011 },
-    { label: 'Modern Times', year: 1936 },
-    { label: 'Raiders of the Lost Ark', year: 1981 },
-    { label: 'Rear Window', year: 1954 },
-    { label: 'The Pianist', year: 2002 },
-    { label: 'The Departed', year: 2006 },
-    { label: 'Terminator 2: Judgment Day', year: 1991 },
-    { label: 'Back to the Future', year: 1985 },
-    { label: 'Whiplash', year: 2014 },
-    { label: 'Gladiator', year: 2000 },
-    { label: 'Memento', year: 2000 },
-    { label: 'The Prestige', year: 2006 },
-    { label: 'The Lion King', year: 1994 },
-    { label: 'Apocalypse Now', year: 1979 },
-    { label: 'Alien', year: 1979 },
-    { label: 'Sunset Boulevard', year: 1950 },
-    {
-        label: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
-        year: 1964
-    },
-    { label: 'The Great Dictator', year: 1940 },
-    { label: 'Cinema Paradiso', year: 1988 },
-    { label: 'The Lives of Others', year: 2006 },
-    { label: 'Grave of the Fireflies', year: 1988 },
-    { label: 'Paths of Glory', year: 1957 },
-    { label: 'Django Unchained', year: 2012 },
-    { label: 'The Shining', year: 1980 },
-    { label: 'WALL·E', year: 2008 },
-    { label: 'American Beauty', year: 1999 },
-    { label: 'The Dark Knight Rises', year: 2012 },
-    { label: 'Princess Mononoke', year: 1997 },
-    { label: 'Aliens', year: 1986 },
-    { label: 'Oldboy', year: 2003 },
-    { label: 'Once Upon a Time in America', year: 1984 },
-    { label: 'Witness for the Prosecution', year: 1957 },
-    { label: 'Das Boot', year: 1981 },
-    { label: 'Citizen Kane', year: 1941 },
-    { label: 'North by Northwest', year: 1959 },
-    { label: 'Vertigo', year: 1958 },
-    {
-        label: 'Star Wars: Episode VI - Return of the Jedi',
-        year: 1983
-    },
-    { label: 'Reservoir Dogs', year: 1992 },
-    { label: 'Braveheart', year: 1995 },
-    { label: 'M', year: 1931 },
-    { label: 'Requiem for a Dream', year: 2000 },
-    { label: 'Amélie', year: 2001 },
-    { label: 'A Clockwork Orange', year: 1971 },
-    { label: 'Like Stars on Earth', year: 2007 },
-    { label: 'Taxi Driver', year: 1976 },
-    { label: 'Lawrence of Arabia', year: 1962 },
-    { label: 'Double Indemnity', year: 1944 },
-    {
-        label: 'Eternal Sunshine of the Spotless Mind',
-        year: 2004
-    },
-    { label: 'Amadeus', year: 1984 },
-    { label: 'To Kill a Mockingbird', year: 1962 },
-    { label: 'Toy Story 3', year: 2010 },
-    { label: 'Logan', year: 2017 },
-    { label: 'Full Metal Jacket', year: 1987 },
-    { label: 'Dangal', year: 2016 },
-    { label: 'The Sting', year: 1973 },
-    { label: '2001: A Space Odyssey', year: 1968 },
-    { label: "Singin' in the Rain", year: 1952 },
-    { label: 'Toy Story', year: 1995 },
-    { label: 'Bicycle Thieves', year: 1948 },
-    { label: 'The Kid', year: 1921 },
-    { label: 'Inglourious Basterds', year: 2009 },
-    { label: 'Snatch', year: 2000 },
-    { label: '3 Idiots', year: 2009 },
-    { label: 'Monty Python and the Holy Grail', year: 1975 }
+const options = ['A', 'B', 'C', 'D'];
+const objOptions = [
+    { value: 65, label: 'A' },
+    { value: 66, label: 'B' },
+    { value: 67, label: 'C' }
 ];
-
-const FormPage = () => {
-    const [value, setValue] = useState(null);
+const myHelper = {
+    email: {
+        required: 'Email is Required',
+        pattern: 'Invalid Email Address'
+    }
+};
+const Range = ({ control, type, name, label, multiple }) => (
+    <Controller
+        control={control}
+        name={name}
+        defaultValue={[0, 50]}
+        render={({ field: { value, ...field } }) => <Slider {...field} marks max={100} min={0} step={5} value={value} />}
+    />
+);
+const SelectAuto = ({ control, type, name, label, multiple }) => (
+    <Controller
+        control={control}
+        name={name}
+        defaultValue={multiple ? [objOptions[0]] : objOptions[0]}
+        render={({ field: { onChange, ...field } }) => (
+            <Autocomplete
+                multiple={multiple}
+                options={objOptions}
+                defaultValue={multiple ? [objOptions[0]] : objOptions[0]}
+                getOptionLabel={(option) => option.label}
+                onChange={(_, data) => onChange(data)}
+                renderInput={(params) => <TextField {...field} {...params} fullWidth label="object-complete" />}
+            />
+        )}
+    />
+);
+const Text = ({ control, type, name, label, multiple, errorMessage }) => {
+    const {
+        field: { onChange, onBlur, value, ref },
+        fieldState: { isTouched, isDirty },
+        formState: { touchedFields, dirtyFields, errors, isValid }
+    } = useController({
+        name,
+        control,
+        rules: { required: 'required' },
+        defaultValue: ''
+    });
     return (
-        <MainCard title="Sample Form">
-            <FormControl fullWidth>
-                <TextField id="outlined-basic" label="Text" variant="outlined" />
-            </FormControl>
-
-            <FormControl fullWidth>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                        renderInput={(props) => <TextField {...props} />}
-                        label="DateTimePicker"
-                        value={value}
-                        onChange={(newValue) => {
-                            setValue(newValue);
-                        }}
-                    />
-                </LocalizationProvider>
-            </FormControl>
-
-            <FormControl fullWidth>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                        label="Basic example"
-                        value={value}
-                        onChange={(newValue) => {
-                            setValue(newValue);
-                        }}
-                        renderInput={(params) => <TextField {...params} />}
-                    />
-                </LocalizationProvider>
-            </FormControl>
-
-            <FormControl fullWidth>
-                <TextField id="number" type={'number'} label="Number" variant="outlined" />
-            </FormControl>
-
-            <FormControl fullWidth>
-                <Autocomplete
-                    disablePortal
-                    id="combo-box-demo"
-                    options={top100Films}
-                    multiple
-                    renderInput={(params) => <TextField {...params} label="Movie" />}
-                />
-            </FormControl>
-
-            <FormControl fullWidth>
-                <InputLabel id="age-label">Age</InputLabel>
-                <Select labelId="age-label" id="age" value={10} label="Age" onChange={(e) => console.log(e)}>
-                    <MenuItem value={''}></MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
-                </Select>
-            </FormControl>
-
-            <FormControl fullWidth>
-                <FormLabel id="gender-label">Gender</FormLabel>
-                <RadioGroup aria-labelledby="gender-label" defaultValue="female" name="gender">
-                    <FormControlLabel value="female" control={<Radio />} label="Female" />
-                    <FormControlLabel value="male" control={<Radio />} label="Male" />
-                    <FormControlLabel value="other" control={<Radio />} label="Other" />
-                </RadioGroup>
-            </FormControl>
-
-            <FormControl fullWidth>
-                <FormLabel component="legend">Assign responsibility</FormLabel>
-                <FormGroup>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked
-                                value={'test'}
-                                onChange={(e) => console.log({ checked: e.target.checked, value: e.target.value })}
-                                name="gilad"
-                            />
-                        }
-                        label="Gilad Gray"
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked
-                                value={'test2'}
-                                onChange={(e) => console.log({ checked: e.target.checked, value: e.target.value })}
-                                name="jason"
-                            />
-                        }
-                        label="Jason Killian"
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked
-                                value={'test3'}
-                                onChange={(e) => console.log({ checked: e.target.checked, value: e.target.value })}
-                                name="antoine"
-                            />
-                        }
-                        label="Antoine Llorca"
-                    />
-                </FormGroup>
-                <FormControl fullWidth>
-                    <SunEditor />
-                </FormControl>
-
-                <Button variant="contained">Contained</Button>
-            </FormControl>
-        </MainCard>
+        <>
+            <TextField
+                error={!!errors[name]}
+                type={type}
+                onChange={onChange} // send value to hook form
+                onBlur={onBlur} // notify when input is touched/blur
+                value={value} // input value
+                name={name} // send down the input name
+                inputRef={ref} // send input ref, so we can focus on input when error appear
+                label={label}
+                helperText={errorMessage}
+            />
+            <ErrorMessage errors={errors} name={name} render={({ message }) => <p>{message}</p>} />
+        </>
     );
 };
+const Array = ({ control, type, name, label, multiple }) => {
+    const {
+        fields: members,
+        append: appendMemberRow,
+        remove: removeMemberRow
+    } = useFieldArray({
+        control,
+        name
+    });
+    const addNewMemeber = () => appendMemberRow({ email: '', role: 'user' });
+    return (
+        <>
+            {members.map((field, index) => (
+                <Grid container key={field.id} spacing={1} alignItems="center">
+                    <Grid item xs={6}>
+                        <Controller
+                            control={control}
+                            // must use . for the object key!!!
+                            name={`${name}.${index}.email`}
+                            defaultValue=""
+                            render={({ field }) => <TextField {...field} type="email" fullWidth />}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Controller
+                            control={control}
+                            // must use . for the object key!!!
+                            name={`members.${index}.role`}
+                            defaultValue="user"
+                            render={({ field }) => (
+                                <Select {...field} fullWidth>
+                                    <MenuItem value="user">Member</MenuItem>
+                                    <MenuItem value="admin">Admin</MenuItem>
+                                </Select>
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Button color="error" variant="text" onClick={() => removeMemberRow(index)}>
+                            Delete
+                        </Button>
+                    </Grid>
+                </Grid>
+            ))}
 
-export default FormPage;
+            <Button variant="contained" onClick={addNewMemeber}>
+                Add
+            </Button>
+        </>
+    );
+};
+const RadioType = ({ control, type, name, label, multiple }) => (
+    <Controller
+        control={control}
+        name={name}
+        defaultValue=""
+        render={({ field }) => (
+            <RadioGroup {...field}>
+                <FormControlLabel value="choice-1" control={<Radio />} label="A" />
+                <FormControlLabel value="choice-2" control={<Radio />} label="B" />
+                <FormControlLabel value="choice-3" control={<Radio />} label="C" />
+                <FormControlLabel value="choice-4" control={<Radio />} label="D" />
+            </RadioGroup>
+        )}
+    />
+);
+const Check = ({ control, type, name, label, multiple }) => (
+    <Controller
+        control={control}
+        name={name}
+        defaultValue={false}
+        render={({ field: { value, onChange, ...field } }) => (
+            <FormControlLabel control={<Checkbox onChange={onChange} checked={!!value} {...field} />} label="checkbox" />
+        )}
+    />
+);
+const DropDown = ({ control, type, name, label, multiple }) => (
+    <Controller
+        control={control}
+        name={name}
+        defaultValue="A"
+        render={({ field }) => (
+            <Select {...field} fullWidth>
+                <MenuItem value="A">Select 1</MenuItem>
+                <MenuItem value="B">Select 2</MenuItem>
+                <MenuItem value="C">Select 3</MenuItem>
+                <MenuItem value="D">Select 4</MenuItem>
+            </Select>
+        )}
+    />
+);
+function EcEditor({ control, type, name, label, multiple }) {
+    const { field } = useController({
+        name,
+        control
+    });
+
+    const onChange = (text) => {
+        field.onChange(text);
+    };
+    return (
+        <SunEditor
+            onChange={onChange}
+            defaultValue={field.value}
+            setOptions={{
+                buttonList: [
+                    ['undo', 'redo', 'font', 'fontSize', 'formatBlock'],
+                    ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript', 'removeFormat'],
+                    '/',
+                    ['fontColor', 'hiliteColor', 'outdent', 'indent', 'align', 'horizontalRule', 'list', 'table'],
+                    ['link', 'image', 'video', 'fullScreen', 'showBlocks', 'codeView', 'preview', 'print', 'save']
+                ]
+            }}
+        />
+    );
+}
+function EYFormField(props) {
+    let ReturnType = null;
+
+    switch (props.type) {
+        case 'text':
+            ReturnType = Text;
+            break;
+        case 'array':
+            ReturnType = Array;
+            break;
+        case 'slider':
+            ReturnType = Range;
+            break;
+        case 'selectAuto':
+            ReturnType = SelectAuto;
+            break;
+        case 'select':
+            ReturnType = DropDown;
+            break;
+        case 'radio':
+            ReturnType = RadioType;
+            break;
+        case 'check':
+            ReturnType = Check;
+            break;
+        case 'editor':
+            ReturnType = EcEditor;
+            break;
+        default:
+            break;
+    }
+    return ReturnType ? <ReturnType {...props} /> : null;
+}
+export default function FormPage() {
+    const { control, handleSubmit } = useForm();
+
+    console.count('app rerender');
+
+    const handleOnSubmit = (evt) => {
+        console.log(evt);
+    };
+    // const watchAll = watch();
+    // console.log(watchAll, errors);
+
+    return (
+        <MainCard title="Sample Form">
+            <Box component="form" onSubmit={handleSubmit(handleOnSubmit)}>
+                <Grid container spacing={3}>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="text" name="username" label="User Name" errorMessage="Name is requried" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="select" name="select" label="Select" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="selectAuto" name="selectAuto" label="Select Auto" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="selectAuto" name="letters" label="Letter Selector" multiple />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="check" name="letter2" label="Letter Radio" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="radio" name="letter3" label="Letter Radio" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="slider" name="slider" label="Slider" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <EYFormField control={control} type="text" name="email2" label="Email" errorMessage="Email is requried" />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <EYFormField control={control} type="array" name="members" label="Members" />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <EYFormField control={control} type="editor" name="editor" label="Editor" />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button type="submit">Submit</Button>
+                    </Grid>
+                </Grid>
+            </Box>
+        </MainCard>
+    );
+}

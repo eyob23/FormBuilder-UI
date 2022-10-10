@@ -29,14 +29,6 @@ const dashboard = {
             url: '/dashboard/form',
             icon: icons.FormOutlined,
             breadcrumbs: false
-        },
-        {
-            id: 'formtow',
-            title: 'Form Two',
-            type: 'item',
-            url: '/dashboard/formTwo',
-            icon: icons.FormOutlined,
-            breadcrumbs: false
         }
     ]
 };

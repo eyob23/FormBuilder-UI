@@ -12,7 +12,6 @@ const SamplePage = Loadable(lazy(() => import('pages/extra-pages/SamplePage')));
 
 // render - sample page
 const FormPage = Loadable(lazy(() => import('pages/form/FormPage')));
-const FormTwo = Loadable(lazy(() => import('pages/form/FormTwo')));
 
 // render - utilities
 const Typography = Loadable(lazy(() => import('pages/components-overview/Typography')));
@@ -44,10 +43,6 @@ const MainRoutes = {
                 {
                     path: 'form',
                     element: <FormPage />
-                },
-                {
-                    path: 'formTwo',
-                    element: <FormTwo />
                 }
             ]
         },
