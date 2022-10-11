@@ -8,12 +8,6 @@
 
 -   [Download from GitHub](https://github.com/eyob23/mantis-free-react-admin-template)
 
-
-#### Preview
-
--   [Demo](https://mantisdashboard.io)
-
-
 ## Table of contents
 
 -   [Getting started](#getting-started)
