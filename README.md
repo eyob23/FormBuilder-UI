@@ -50,10 +50,6 @@ yarn start
 -   Code splitting.
 -   CSS-in-JS.
 
-## Author
-
-Mantis is managed by team [CodedThemes](https://codedthemes.com).
-
 ## Issues
 
 Please generate a [GitHub issue](https://github.com/eyob23/mantis-free-react-admin-template/issues) if you found a bug in any version. We are try our best to resolve the issue.
