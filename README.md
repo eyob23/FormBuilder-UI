@@ -1,16 +1,4 @@
-## Why Mantis?
-
-Mantis offers everything needed to build an advanced dashboard application. In the initial release, we included following high-end features,
-
--   Support React18.
--   Professional user interface.
--   Material UI React components.
--   Fully responsive, all modern browser supported.
--   Easy to use code structure
--   Flexible & high-Performance code
--   Simple documentation
-
-## Free Mantis React version
+## Why FormBuilder-UI forked from (https://mantisdashboard.io/free)?
 
 #### Preview
 
