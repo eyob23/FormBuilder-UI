@@ -14,11 +14,22 @@ import {
     TextField,
     Slider,
     Select,
-    MenuItem
+    MenuItem,
+    FormControl,
+    FormLabel,
+    FormGroup,
+    Paper,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    ListSubheader
 } from '@mui/material';
 import MainCard from 'components/MainCard';
 import { ErrorMessage } from '@hookform/error-message';
-
+import { Editor } from '@tinymce/tinymce-react';
+import { useRef } from 'react';
+import { DeleteFilled, DeleteTwoTone, UserAddOutlined } from '@ant-design/icons';
 const options = ['A', 'B', 'C', 'D'];
 const objOptions = [
     { value: 65, label: 'A' },
@@ -31,6 +42,57 @@ const myHelper = {
         pattern: 'Invalid Email Address'
     }
 };
+
+function TMEditor() {
+    const editorRef = useRef(null);
+    const log = () => {
+        if (editorRef.current) {
+            console.log(editorRef.current.getContent());
+        }
+    };
+    return (
+        <>
+            <Editor
+                apiKey="7aldzccwzb51gk6brcck0jmqoro2v083535l9sxt29w6tsk4"
+                onInit={(evt, editor) => (editorRef.current = editor)}
+                initialValue="<p>This is the initial content of the editor.</p>"
+                init={{
+                    height: 500,
+                    menubar: false,
+                    plugins: [
+                        'advlist',
+                        'autolink',
+                        'lists',
+                        'link',
+                        'image',
+                        'charmap',
+                        'preview',
+                        'anchor',
+                        'searchreplace',
+                        'visualblocks',
+                        'code',
+                        'fullscreen',
+                        'insertdatetime',
+                        'media',
+                        'table',
+                        'code',
+                        'help',
+                        'wordcount'
+                    ],
+                    toolbar:
+                        'undo redo | blocks | ' +
+                        'bold italic forecolor | alignleft aligncenter ' +
+                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                        'removeformat | help',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                }}
+            />
+            <button onClick={log} type="button">
+                Log editor content
+            </button>
+        </>
+    );
+}
 const Range = ({ control, type, name, label, multiple }) => (
     <Controller
         control={control}
@@ -95,16 +157,17 @@ const Array = ({ control, type, name, label, multiple }) => {
     });
     const addNewMemeber = () => appendMemberRow({ email: '', role: 'user' });
     return (
-        <>
+        <Paper elevation={3} style={{ padding: '.25rem 1rem 1rem 1rem' }}>
+            <h4>Members</h4>
             {members.map((field, index) => (
-                <Grid container key={field.id} spacing={1} alignItems="center">
+                <Grid container key={field.id} spacing={1} alignItems="center" style={{ marginBottom: '1rem' }}>
                     <Grid item xs={6}>
                         <Controller
                             control={control}
                             // must use . for the object key!!!
                             name={`${name}.${index}.email`}
                             defaultValue=""
-                            render={({ field }) => <TextField {...field} type="email" fullWidth />}
+                            render={({ field }) => <TextField {...field} label="User Email" type="email" fullWidth />}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -114,7 +177,7 @@ const Array = ({ control, type, name, label, multiple }) => {
                             name={`members.${index}.role`}
                             defaultValue="user"
                             render={({ field }) => (
-                                <Select {...field} fullWidth>
+                                <Select {...field} label="user Type" fullWidth>
                                     <MenuItem value="user">Member</MenuItem>
                                     <MenuItem value="admin">Admin</MenuItem>
                                 </Select>
@@ -122,17 +185,16 @@ const Array = ({ control, type, name, label, multiple }) => {
                         />
                     </Grid>
                     <Grid item xs={2}>
-                        <Button color="error" variant="text" onClick={() => removeMemberRow(index)}>
+                        <Button color="error" variant="outlined" onClick={() => removeMemberRow(index)} startIcon={<DeleteFilled />}>
                             Delete
                         </Button>
                     </Grid>
                 </Grid>
             ))}
-
-            <Button variant="contained" onClick={addNewMemeber}>
+            <Button variant="outlined" onClick={addNewMemeber} startIcon={<UserAddOutlined />}>
                 Add
             </Button>
-        </>
+        </Paper>
     );
 };
 const RadioType = ({ control, type, name, label, multiple }) => (
@@ -154,9 +216,30 @@ const Check = ({ control, type, name, label, multiple }) => (
     <Controller
         control={control}
         name={name}
-        defaultValue={false}
+        defaultValue={{}}
         render={({ field: { value, onChange, ...field } }) => (
-            <FormControlLabel control={<Checkbox onChange={onChange} checked={!!value} {...field} />} label="checkbox" />
+            // <FormControlLabel control={<Checkbox onChange={onChange} checked={!!value} {...field} />} label="checkbox" />
+            <>
+                <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
+                    <FormLabel component="legend">Assign responsibility</FormLabel>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={<Checkbox checked={value.gilad} onChange={(e) => (value.gilad = e.target.checked)} name="gilad" />}
+                            label="Gilad Gray"
+                        />
+                        <FormControlLabel
+                            control={<Checkbox checked={value.jason} onChange={(e) => (value.jason = e.target.checked)} name="jason" />}
+                            label="Jason Killian"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox checked={value.antoine} onChange={(e) => (value.antoine = e.target.checked)} name="antoine" />
+                            }
+                            label="Antoine Llorca"
+                        />
+                    </FormGroup>
+                </FormControl>
+            </>
         )}
     />
 );
@@ -185,19 +268,22 @@ function EcEditor({ control, type, name, label, multiple }) {
         field.onChange(text);
     };
     return (
-        <SunEditor
-            onChange={onChange}
-            defaultValue={field.value}
-            setOptions={{
-                buttonList: [
-                    ['undo', 'redo', 'font', 'fontSize', 'formatBlock'],
-                    ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript', 'removeFormat'],
-                    '/',
-                    ['fontColor', 'hiliteColor', 'outdent', 'indent', 'align', 'horizontalRule', 'list', 'table'],
-                    ['link', 'image', 'video', 'fullScreen', 'showBlocks', 'codeView', 'preview', 'print', 'save']
-                ]
-            }}
-        />
+        <>
+            <SunEditor
+                onChange={onChange}
+                defaultValue={field.value}
+                setOptions={{
+                    buttonList: [
+                        ['undo', 'redo', 'font', 'fontSize', 'formatBlock'],
+                        ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript', 'removeFormat'],
+                        '/',
+                        ['fontColor', 'hiliteColor', 'outdent', 'indent', 'align', 'horizontalRule', 'list', 'table'],
+                        ['link', 'image', 'video', 'fullScreen', 'showBlocks', 'codeView', 'preview', 'print', 'save']
+                    ]
+                }}
+            />
+            {/* <TMEditor /> */}
+        </>
     );
 }
 function EYFormField(props) {
@@ -245,44 +331,126 @@ export default function FormPage() {
     // console.log(watchAll, errors);
 
     return (
-        <MainCard title="Sample Form">
-            <Box component="form" onSubmit={handleSubmit(handleOnSubmit)}>
-                <Grid container spacing={3}>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="text" name="username" label="User Name" errorMessage="Name is requried" />
+        <>
+            <MainCard title="Sample Form">
+                <Box component="form" onSubmit={handleSubmit(handleOnSubmit)}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="text" name="username" label="User Name" errorMessage="Name is requried" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="select" name="select" label="Select" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="selectAuto" name="selectAuto" label="Select Auto" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="selectAuto" name="letters" label="Letter Selector" multiple />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="check" name="letter2" label="Letter Radio" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="radio" name="letter3" label="Letter Radio" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="slider" name="slider" label="Slider" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="text" name="email2" label="Email" errorMessage="Email is requried" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <EYFormField control={control} type="array" name="members" label="Members" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <EYFormField control={control} type="editor" name="editor" label="Editor" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button variant="contained" type="submit">
+                                Submit
+                            </Button>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="select" name="select" label="Select" />
+                </Box>
+            </MainCard>
+            {/* <MainCard title="Sample Form">
+                <Box component="form" onSubmit={handleSubmit(handleOnSubmit)}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="text" name="username" label="User Name" errorMessage="Name is requried" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="select" name="select" label="Select" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="selectAuto" name="selectAuto" label="Select Auto" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="selectAuto" name="letters" label="Letter Selector" multiple />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="check" name="letter2" label="Letter Radio" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="radio" name="letter3" label="Letter Radio" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="slider" name="slider" label="Slider" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="text" name="email2" label="Email" errorMessage="Email is requried" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <EYFormField control={control} type="array" name="members" label="Members" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <EYFormField control={control} type="editor" name="editor" label="Editor" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button type="submit">Submit</Button>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="selectAuto" name="selectAuto" label="Select Auto" />
+                </Box>
+            </MainCard>
+            <MainCard title="Sample Form">
+                <Box component="form" onSubmit={handleSubmit(handleOnSubmit)}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="text" name="username" label="User Name" errorMessage="Name is requried" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="select" name="select" label="Select" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="selectAuto" name="selectAuto" label="Select Auto" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="selectAuto" name="letters" label="Letter Selector" multiple />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="check" name="letter2" label="Letter Radio" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="radio" name="letter3" label="Letter Radio" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="slider" name="slider" label="Slider" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <EYFormField control={control} type="text" name="email2" label="Email" errorMessage="Email is requried" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <EYFormField control={control} type="array" name="members" label="Members" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <EYFormField control={control} type="editor" name="editor" label="Editor" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button type="submit">Submit</Button>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="selectAuto" name="letters" label="Letter Selector" multiple />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="check" name="letter2" label="Letter Radio" />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="radio" name="letter3" label="Letter Radio" />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="slider" name="slider" label="Slider" />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <EYFormField control={control} type="text" name="email2" label="Email" errorMessage="Email is requried" />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <EYFormField control={control} type="array" name="members" label="Members" />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <EYFormField control={control} type="editor" name="editor" label="Editor" />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button type="submit">Submit</Button>
-                    </Grid>
-                </Grid>
-            </Box>
-        </MainCard>
+                </Box>
+            </MainCard> */}
+        </>
     );
 }
