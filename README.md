@@ -13,11 +13,8 @@
 -   [Getting started](#getting-started)
 -   [Documentation](#documentation)
 -   [Technology stack](#technology-stack)
--   [Author](#author)
 -   [Issues?](#issues)
 -   [License](#license)
--   [More products](#more-free-react-material-admin-templates)
--   [Follow us](#follow-us)
 
 ## Getting started
 
